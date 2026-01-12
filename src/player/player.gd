@@ -1,5 +1,8 @@
 extends Area2D
 
+signal pickup
+signal hurt
+
 ## Speed of the player.
 @export_range(0, 999) var speed := 350.0
 ## The current velocity of the player.
@@ -11,6 +14,7 @@ var screensize := Vector2(480, 720)
 func _ready() -> void:
 	position = screensize / 2
 	$AnimatedSprite2D.animation = "idle"
+	connect("area_entered", _on_area_entered)
 	
 ## Runs per frame.
 func _process(delta: float) -> void:
@@ -25,9 +29,18 @@ func _process(delta: float) -> void:
 	if (velocity.x != 0):
 		$AnimatedSprite2D.flip_h = velocity.x < 0
 
-func hurt() -> void:
+func die() -> void:
 	$AnimatedSprite2D.animation = "hurt"
 	set_process(false)
 
-	
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("coins"):
+		if area.has_method("pickup"):
+			area.pickup()
+		else:
+			push_warning("(player) `_on_area_entered`: %s does not define method `pickup`." % area)
+		pickup.emit()
+	if area.is_in_group("obstacles"):
+		hurt.emit()
+		die()
 	
