@@ -2,6 +2,7 @@ extends Node2D
 
 @export var coin_scene: PackedScene
 @export var powerup_scene: PackedScene
+@export var cactus_scene: PackedScene
 @export var playtime: int
 @export var curve := 5
 
@@ -35,12 +36,14 @@ func new_game() -> void:
 	$GameTimer.start()
 	$PowerupTimer.start()
 	spawn_coins()
+	spawn_cactus()
 
 func game_over() -> void:
 	$EndSound.play()
 	playing = false
 	get_tree().call_group("coins", "queue_free")
 	get_tree().call_group("powerups", "queue_free")
+	get_tree().call_group("obstacles", "queue_free")
 	$GameTimer.stop()
 	$PowerupTimer.stop()
 	$Player.die()
@@ -58,13 +61,23 @@ func spawn_coins() -> void:
 		@warning_ignore("narrowing_conversion")
 		c.position = Vector2(randi_range(0, screensize.x), randi_range(0, screensize.y))
 
+func spawn_cactus() -> void:
+	for i in curve:
+		var c = cactus_scene.instantiate()
+		add_child(c)
+		@warning_ignore("narrowing_conversion")
+		c.position = Vector2(randi_range(0, screensize.x), randi_range(0, screensize.y))
+		
 ## Runs once per frame.
 func _process(_delta: float) -> void:
 	# Interrogate the tree if coins still exist.
 	if (playing and (get_tree().get_nodes_in_group("coins").size() == 0)):
 			level += 1
+			curve += 1
 			time_left += 5
 			spawn_coins()
+			get_tree().call_group("obstacles", "queue_free")
+			spawn_cactus()
 
 func _on_game_timer_timeout() -> void:
 	time_left -= 1

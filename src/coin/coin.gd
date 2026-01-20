@@ -5,6 +5,7 @@ var screensize = Vector2.ZERO
 func _ready() -> void:
 	$Timer.start(randf_range(3, 8))
 	$Timer.timeout.connect(_on_timer_timeout)
+	area_entered.connect(_on_area_entered)
 	
 func _on_timer_timeout() -> void:
 	$AnimatedSprite2D.frame = 0
@@ -17,3 +18,7 @@ func pickup() -> void:
 	tween.tween_property(self, "modulate:a", 0.0, 0.3)
 	await tween.finished
 	queue_free()
+
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("obstacles"):
+		Vector2(randi_range(0, screensize.x), randi_range(0, screensize.y))
