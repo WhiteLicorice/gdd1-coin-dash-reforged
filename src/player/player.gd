@@ -49,7 +49,7 @@ func _on_area_entered(area: Area2D) -> void:
 
 func _resolve_pickup_strategy(area: Area2D) -> String:
 	if not area.has_method("pickup"):
-		push_warning("(player) `_resolve_pickup_strategy`: %s does not define method `pickup`." % area)
+		print("(player) `_resolve_pickup_strategy`: %s does not define method `pickup`." % area)
 		return ""
 	if area.is_in_group("coins"): return "coins"
 	if area.is_in_group("powerups"): return "powerups"

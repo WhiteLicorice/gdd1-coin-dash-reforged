@@ -5,6 +5,9 @@ extends Node2D
 @export var cactus_scene: PackedScene
 @export var playtime: int
 @export var curve := 5
+@export var title_bgm: AudioStream
+@export var end_bgm: AudioStream
+@export var playing_bgm: AudioStream
 
 var score := 1
 var level := 1
@@ -14,6 +17,7 @@ var playing := false
 
 ## Runs once upon instantiation.
 func _ready() -> void:
+	$BGMPlayer.change_music(title_bgm)
 	screensize = get_viewport().get_visible_rect().size
 	$Player.screensize = screensize
 	$Player.hide()
@@ -21,10 +25,12 @@ func _ready() -> void:
 	$Player.pickup.connect(_on_player_pickup)
 	$GameTimer.timeout.connect(_on_game_timer_timeout)
 	$PowerupTimer.timeout.connect(_on_powerup_timer_timeout)
+	$HUD.start_game.connect(_on_hud_start_game)
 	_randomize_powerup_timer()
 	
 ## Initializes everything we need to start the game.
 func new_game() -> void:
+	$BGMPlayer.change_music(playing_bgm)
 	score = 0
 	level = 1
 	$HUD.update_score(score)
@@ -44,6 +50,7 @@ func game_over() -> void:
 	get_tree().call_group("coins", "queue_free")
 	get_tree().call_group("powerups", "queue_free")
 	get_tree().call_group("obstacles", "queue_free")
+	$BGMPlayer.change_music(end_bgm)
 	$GameTimer.stop()
 	$PowerupTimer.stop()
 	$Player.die()
