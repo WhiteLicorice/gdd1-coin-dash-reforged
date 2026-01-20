@@ -1,6 +1,6 @@
 extends Area2D
 
-signal pickup
+signal pickup(strategy: String)
 signal hurt
 
 ## Speed of the player.
@@ -38,12 +38,22 @@ func die() -> void:
 	set_process(false)
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("coins"):
-		if area.has_method("pickup"):
-			area.pickup()
-		else:
-			push_warning("(player) `_on_area_entered`: %s does not define method `pickup`." % area)
-		pickup.emit()
+	var pickup_strategy = _resolve_pickup_strategy(area)
+	if pickup_strategy:
+		area.pickup()
+		pickup.emit(pickup_strategy)
+	
 	if area.is_in_group("obstacles"):
 		hurt.emit()
 		die()
+
+func _resolve_pickup_strategy(area: Area2D) -> String:
+	if not area.has_method("pickup"):
+		push_warning("(player) `_resolve_pickup_strategy`: %s does not define method `pickup`." % area)
+		return ""
+	if area.is_in_group("coins"): return "coins"
+	if area.is_in_group("powerups"): return "powerups"
+	push_warning("(player) `_resolve_pickup_strategy`: %s does not belong to a valid group." % area)
+	return ""
+
+	

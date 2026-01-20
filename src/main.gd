@@ -1,6 +1,7 @@
 extends Node2D
 
 @export var coin_scene: PackedScene
+@export var powerup_scene: PackedScene
 @export var playtime: int
 @export var curve := 5
 
@@ -18,6 +19,8 @@ func _ready() -> void:
 	$Player.hurt.connect(_on_player_hurt)
 	$Player.pickup.connect(_on_player_pickup)
 	$GameTimer.timeout.connect(_on_game_timer_timeout)
+	$PowerupTimer.timeout.connect(_on_powerup_timer_timeout)
+	_randomize_powerup_timer()
 	
 ## Initializes everything we need to start the game.
 func new_game() -> void:
@@ -30,13 +33,16 @@ func new_game() -> void:
 	$Player.start()
 	$Player.show()
 	$GameTimer.start()
+	$PowerupTimer.start()
 	spawn_coins()
 
 func game_over() -> void:
 	$EndSound.play()
 	playing = false
 	get_tree().call_group("coins", "queue_free")
+	get_tree().call_group("powerups", "queue_free")
 	$GameTimer.stop()
+	$PowerupTimer.stop()
 	$Player.die()
 	$HUD.show_game_over()
 	
@@ -73,7 +79,28 @@ func _on_player_hurt() -> void:
 	$EndSound.play()
 	game_over()
 
-func _on_player_pickup() -> void:
-	score += 1
-	$HUD.update_score(score)
-	$CoinSound.play()
+func _on_player_pickup(strategy: String) -> void:
+	match strategy:
+		"coins":
+			score += 1
+			$HUD.update_score(score)
+			$CoinSound.play()
+		"powerups":
+			time_left += 5
+			$HUD.update_time(time_left)
+			$PowerupSound.play()
+
+func _on_powerup_timer_timeout() -> void:
+	var p: Powerup = powerup_scene.instantiate()
+	add_child(p)
+	p.screensize = screensize
+	# NOTE: Narrowing conversion here doesn't really matter.
+	# Bakit may narrowing conversion dito lods? LMAO.
+	@warning_ignore("narrowing_conversion")
+	p.position = Vector2(randi_range(0, screensize.x), randi_range(0, screensize.y))
+	_randomize_powerup_timer()
+
+func _randomize_powerup_timer() -> void:
+	var rand_time := randi_range(1, 10)
+	print("_randomize_powerup_timer: %d" % rand_time)
+	$PowerupTimer.set_deferred("wait_time", rand_time)
