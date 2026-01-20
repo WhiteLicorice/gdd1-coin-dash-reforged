@@ -6,7 +6,8 @@ func _ready():
 	$Timer.timeout.connect(on_powerup_timer_timeout)
 	$AnimationTimer.start(randf_range(3, 8))
 	$AnimationTimer.timeout.connect(_on_animation_timer_timeout)
-	
+	area_entered.connect(_on_area_entered)
+
 func _on_animation_timer_timeout() -> void:
 	$AnimatedSprite2D.frame = 0
 	$AnimatedSprite2D.play()
@@ -21,3 +22,7 @@ func pickup() -> void:
 
 func on_powerup_timer_timeout() -> void:
 	queue_free()
+
+func _on_area_entered(area: Area2D) -> void:
+	if area.is_in_group("obstacles"):
+		Vector2(randi_range(0, screensize.x), randi_range(0, screensize.y))
