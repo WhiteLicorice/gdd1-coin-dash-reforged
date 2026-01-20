@@ -15,7 +15,7 @@
 script = ExtResource("1_5q4o7")
 coin_scene = ExtResource("2_3cfgd")
 powerup_scene = ExtResource("3_mgm53")
-playtime = 10
+playtime = 60
 
 [node name="Background" type="TextureRect" parent="."]
 anchors_preset = 15

@@ -4,6 +4,12 @@ var screensize = Vector2.ZERO
 
 func _ready():
 	$Timer.timeout.connect(on_powerup_timer_timeout)
+	$AnimationTimer.start(randf_range(3, 8))
+	$AnimationTimer.timeout.connect(_on_animation_timer_timeout)
+	
+func _on_animation_timer_timeout() -> void:
+	$AnimatedSprite2D.frame = 0
+	$AnimatedSprite2D.play()
 
 func pickup() -> void:
 	$CollisionShape2D.set_deferred("disabled", true)
