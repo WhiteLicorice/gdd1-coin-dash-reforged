@@ -33,6 +33,7 @@ func new_game() -> void:
 	spawn_coins()
 
 func game_over() -> void:
+	$EndSound.play()
 	playing = false
 	get_tree().call_group("coins", "queue_free")
 	$GameTimer.stop()
@@ -41,6 +42,7 @@ func game_over() -> void:
 	
 ## Spawns instances of the coin scene according to level and curve.
 func spawn_coins() -> void:
+	$LevelSound.play()
 	for i in (level + curve):
 		var c: Coin = coin_scene.instantiate()
 		add_child(c)
@@ -68,8 +70,10 @@ func _on_hud_start_game() -> void:
 	new_game()
 
 func _on_player_hurt() -> void:
+	$EndSound.play()
 	game_over()
 
 func _on_player_pickup() -> void:
 	score += 1
 	$HUD.update_score(score)
+	$CoinSound.play()
