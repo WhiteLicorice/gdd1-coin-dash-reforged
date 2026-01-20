@@ -8,13 +8,16 @@ signal hurt
 ## The current velocity of the player.
 var velocity := Vector2.ZERO
 ## Controls player's movement bounds.
-var screensize := Vector2(480, 720)
+var screensize := Vector2.ZERO
 
-## Runs once upon instantiation.
+## Called once upon instantiation.
 func _ready() -> void:
+	connect("area_entered", _on_area_entered)
+
+## Called outside to initialize the player once upon instantiation.
+func start() -> void:
 	position = screensize / 2
 	$AnimatedSprite2D.animation = "idle"
-	connect("area_entered", _on_area_entered)
 	
 ## Runs per frame.
 func _process(delta: float) -> void:
